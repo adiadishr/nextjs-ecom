@@ -7,17 +7,20 @@ import { Textarea } from "@/components/ui/textarea"
 import { addProduct } from "@/lib/actions"
 import { formatCurrency } from "@/lib/formatters"
 import { useState } from "react"
-import { useFormStatus } from "react-dom"
+import { useFormState, useFormStatus } from "react-dom"
 
 export default function ProductForm() {
+
+    const [error, action] = useFormState(addProduct, {})
 
     const [priceInCents, setPriceInCents] = useState<number | undefined>()
 
     return (
-        <form action={addProduct} className="space-y-8 mb-6 sm:mb-12">
+        <form action={action} className="space-y-8 mb-6 sm:mb-12 mt-4">
             <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input type="text" id="name" name="name" placeholder="Please enter the product name" required />
+                {error.name && <div className="text-destructive">{error.name}</div>}
             </div>
             <div className="space-y-2">
                 <Label htmlFor="priceInCents">Price In Cents</Label>
@@ -25,18 +28,22 @@ export default function ProductForm() {
                 <div className="text-muted-foreground">
                     {formatCurrency((priceInCents || 0) / 100)}
                 </div>
+                {error.priceInCents && <div className="text-destructive">{error.priceInCents}</div>}
             </div>
             <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea id="description" name="description" placeholder="Please enter the product description" required />
+                {error.description && <div className="text-destructive">{error.description}</div>}
             </div>
             <div className="space-y-2">
                 <Label htmlFor="file">File</Label>
                 <Input type="file" id="file" name="file" required />
+                {error.file && <div className="text-destructive">{error.file}</div>}
             </div>
             <div className="space-y-2">
                 <Label htmlFor="image">Image</Label>
                 <Input type="file" id="image" name="image" required />
+                {error.image && <div className="text-destructive">{error.image}</div>}
             </div>
             <SubmitButton />
         </form>

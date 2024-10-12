@@ -1,5 +1,5 @@
-import PageHeader from "@/components/admin/products/header";
-import ProductForm from "@/components/admin/products/new/add-product-form";
+import PageHeader from "@/components/admin/page-header";
+import ProductForm from "@/components/admin/product-form";
 
 export default function Page() {
     return (

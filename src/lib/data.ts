@@ -38,3 +38,17 @@ export async function getProductData() {
         inactiveProducts
     }
 }
+
+export async function getProductTableData() {
+    const ProductTableData = await db.product.findMany({
+        select: {
+            id: true,
+            name: true,
+            priceInCents: true,
+            isAvailableForPurchase: true,
+            _count: { select: { orders: true } },
+        },
+        orderBy: { name: "asc" },
+    })
+    return ProductTableData
+}

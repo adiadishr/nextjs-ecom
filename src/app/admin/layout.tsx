@@ -1,4 +1,4 @@
-import Nav, { NavLink } from "@/components/admin/navigation";
+import Nav, { NavLink } from "@/components/admin/admin-navigation";
 export const dynamic = "force-dynamic"
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
