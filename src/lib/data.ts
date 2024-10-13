@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 
-//Admin Dashboard Data
+//Admin
 
 export async function getSalesData() {
     const data = await db.order.aggregate({
@@ -51,4 +51,32 @@ export async function getProductTableData() {
         orderBy: { name: "asc" },
     })
     return ProductTableData
+}
+
+export async function getUniqueProductData(id: string) {
+    const data = await db.product.findUnique({
+        where: { id }
+    })
+    return data
+}
+
+//User
+
+export async function getMostPopularProducts() {
+
+    return await db.product.findMany(
+        {
+            where: { isAvailableForPurchase: true },
+            orderBy: { orders: { _count: "desc", } },
+            take: 6,
+        })
+}
+
+export async function getNewestProducts() {
+
+    return await db.product.findMany({
+        where: { isAvailableForPurchase: true },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+    })
 }

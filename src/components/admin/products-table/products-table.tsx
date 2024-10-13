@@ -53,13 +53,13 @@ export default async function ProductsTable() {
                                 <DropdownMenuContent>
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
-                                        <a download href={`/admin/products/${product.id}/download`}>Download</a>
-                                    </DropdownMenuItem>
+                                    <ActiveToggleDropdownItem id={product.id} isAvailableForPurchase={product.isAvailableForPurchase} />
                                     <DropdownMenuItem asChild>
                                         <Link download href={`/admin/products/${product.id}/edit`}>Edit</Link>
                                     </DropdownMenuItem>
-                                    <ActiveToggleDropdownItem id={product.id} isAvailableForPurchase={product.isAvailableForPurchase} />
+                                    <DropdownMenuItem asChild>
+                                        <a download href={`/admin/products/${product.id}/download`}>Download</a>
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DeleteDropdownItem id={product.id} disabled={product._count.orders > 0} />
                                 </DropdownMenuContent>

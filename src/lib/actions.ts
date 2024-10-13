@@ -17,6 +17,10 @@ const addSchema = z.object({
     file: fileSchema.refine(file => file.size > 0, "Required"),
     image: imageSchema.refine(file => file.size > 0, "Required")
 })
+const editSchema = addSchema.extend({
+    file: fileSchema.optional(),
+    image: fileSchema.optional(),
+})
 
 // action to add a product
 export async function addProduct(prevState: unknown, formData: FormData) {
@@ -45,7 +49,7 @@ export async function addProduct(prevState: unknown, formData: FormData) {
         },
     })
 
-
+    revalidatePath('/admin/products')
     redirect("/admin/products")
 }
 
@@ -69,4 +73,55 @@ export async function deleteProduct(id: string) {
     await fs.unlink(product.filePath)
     await fs.unlink(`public${product.imagePath}`)
     revalidatePath('/admin/products')
+}
+
+//action to update product
+export async function updateProduct(id: string, prevState: unknown, formData: FormData) {
+    //validating data baesd on zod editSchema above
+    const validateCheck = editSchema.safeParse(Object.fromEntries(formData.entries()))
+    if (validateCheck.success === false) {
+        return validateCheck.error.formErrors.fieldErrors
+    }
+    const parsedFormData = validateCheck.data
+    //check if the product actually exists in the database
+    const productDbData = await db.product.findUnique({ where: { id } })
+    if (productDbData === null) {
+        return notFound()
+    }
+
+    //check if the user has updated either the file or the image
+    //if they haven't the data for that field will be null
+
+    //old file path
+    let filePath = productDbData.filePath
+    if (parsedFormData.file != null && parsedFormData.file.size > 0) {
+        //deleting old file and reassigning filePath value
+        await fs.unlink(productDbData.filePath)
+        filePath = `products/${crypto.randomUUID()}-${parsedFormData.file.name}`
+        await fs.writeFile(filePath, Buffer.from(await parsedFormData.file.arrayBuffer()))
+    }
+
+    let imagePath = productDbData.imagePath
+    if (parsedFormData.image != null && parsedFormData.image.size > 0) {
+        //deleting old image and reassigning imagePath value
+        await fs.unlink(`public${productDbData.imagePath}`)
+        imagePath = `/products/${crypto.randomUUID()}-${parsedFormData.image.name}`
+        await fs.writeFile(`public${imagePath}`, Buffer.from(await parsedFormData.image.arrayBuffer()))
+    }
+
+    //carry out the update operation
+    await db.product.update({
+        where: { id },
+        data: {
+            name: parsedFormData.name,
+            description: parsedFormData.description,
+            priceInCents: parsedFormData.priceInCents,
+            filePath,
+            imagePath,
+        }
+    })
+
+    //redirect and revalidate
+    revalidatePath('/admin/products')
+    redirect("/admin/products")
 }
